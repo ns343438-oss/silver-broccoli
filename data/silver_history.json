@@ -1,0 +1,156 @@
+{
+  "daily": [
+    {
+      "date": "2025-12-26",
+      "price_usd": 33.57,
+      "price_vnd": 854302
+    },
+    {
+      "date": "2025-12-27",
+      "price_usd": 33.5,
+      "price_vnd": 852605
+    },
+    {
+      "date": "2025-12-28",
+      "price_usd": 30.95,
+      "price_vnd": 787708
+    },
+    {
+      "date": "2025-12-29",
+      "price_usd": 34.12,
+      "price_vnd": 868440
+    },
+    {
+      "date": "2025-12-30",
+      "price_usd": 33.22,
+      "price_vnd": 845532
+    },
+    {
+      "date": "2025-12-31",
+      "price_usd": 32.33,
+      "price_vnd": 822888
+    },
+    {
+      "date": "2026-01-01",
+      "price_usd": 32.37,
+      "price_vnd": 823897
+    },
+    {
+      "date": "2026-01-02",
+      "price_usd": 33.38,
+      "price_vnd": 849622
+    },
+    {
+      "date": "2026-01-03",
+      "price_usd": 33.55,
+      "price_vnd": 853923
+    },
+    {
+      "date": "2026-01-04",
+      "price_usd": 32.28,
+      "price_vnd": 821467
+    },
+    {
+      "date": "2026-01-05",
+      "price_usd": 31.45,
+      "price_vnd": 800384
+    },
+    {
+      "date": "2026-01-06",
+      "price_usd": 30.9,
+      "price_vnd": 786295
+    },
+    {
+      "date": "2026-01-07",
+      "price_usd": 32.5,
+      "price_vnd": 827086
+    },
+    {
+      "date": "2026-01-08",
+      "price_usd": 32,
+      "price_vnd": 814513
+    },
+    {
+      "date": "2026-01-09",
+      "price_usd": 31.74,
+      "price_vnd": 807656
+    },
+    {
+      "date": "2026-01-10",
+      "price_usd": 33.16,
+      "price_vnd": 844010
+    },
+    {
+      "date": "2026-01-11",
+      "price_usd": 32.71,
+      "price_vnd": 832585
+    },
+    {
+      "date": "2026-01-12",
+      "price_usd": 32.95,
+      "price_vnd": 838698
+    },
+    {
+      "date": "2026-01-13",
+      "price_usd": 32.82,
+      "price_vnd": 835384
+    },
+    {
+      "date": "2026-01-14",
+      "price_usd": 32.71,
+      "price_vnd": 832593
+    },
+    {
+      "date": "2026-01-15",
+      "price_usd": 33.31,
+      "price_vnd": 847653
+    },
+    {
+      "date": "2026-01-16",
+      "price_usd": 31.51,
+      "price_vnd": 801875
+    },
+    {
+      "date": "2026-01-17",
+      "price_usd": 31.07,
+      "price_vnd": 790688
+    },
+    {
+      "date": "2026-01-18",
+      "price_usd": 33.92,
+      "price_vnd": 863311
+    },
+    {
+      "date": "2026-01-19",
+      "price_usd": 33.55,
+      "price_vnd": 853831
+    },
+    {
+      "date": "2026-01-20",
+      "price_usd": 32.07,
+      "price_vnd": 816189
+    },
+    {
+      "date": "2026-01-21",
+      "price_usd": 33.77,
+      "price_vnd": 859520
+    },
+    {
+      "date": "2026-01-22",
+      "price_usd": 31.24,
+      "price_vnd": 794960
+    },
+    {
+      "date": "2026-01-23",
+      "price_usd": 33.24,
+      "price_vnd": 845951
+    },
+    {
+      "date": "2026-01-24",
+      "price_usd": 32.5,
+      "price_vnd": 827125
+    }
+  ],
+  "monthly": [],
+  "yearly": []
+}
