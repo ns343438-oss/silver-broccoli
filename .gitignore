@@ -1,0 +1,9 @@
+node_modules/
+__pycache__/
+.env
+venv/
+*.db
+.DS_Store
+dist/
+debug_*.txt
+*.log
