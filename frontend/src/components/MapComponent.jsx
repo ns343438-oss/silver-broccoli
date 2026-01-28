@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-const MapComponent = ({ notices }) => {
+const MapComponent = ({ notices, onMarkerClick }) => {
     useEffect(() => {
         // Kakao Map Script should be loaded in index.html
         // <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_APP_KEY"></script>
@@ -33,6 +33,13 @@ const MapComponent = ({ notices }) => {
                 const iwContent = `<div style="padding:5px;">${notice.title} <br> Score: ${notice.score || 'N/A'}</div>`;
                 const infowindow = new window.kakao.maps.InfoWindow({
                     content: iwContent
+                });
+
+                // Click Event
+                window.kakao.maps.event.addListener(marker, 'click', function () {
+                    if (onMarkerClick) {
+                        onMarkerClick(notice);
+                    }
                 });
 
                 window.kakao.maps.event.addListener(marker, 'mouseover', function () {

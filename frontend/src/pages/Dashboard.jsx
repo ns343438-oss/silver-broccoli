@@ -7,6 +7,7 @@ import { checkEligibility } from '../utils/MatchingLogic';
 
 const Dashboard = () => {
     const [notices, setNotices] = useState([]);
+    const [tempFilterRegion, setTempFilterRegion] = useState('');
     const [filterRegion, setFilterRegion] = useState('');
     const [selectedNotice, setSelectedNotice] = useState(null);
     const [showEligibilityForm, setShowEligibilityForm] = useState(false);
@@ -47,18 +48,41 @@ const Dashboard = () => {
         setShowEligibilityForm(false);
     };
 
+    const handleSearch = () => {
+        setFilterRegion(tempFilterRegion);
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    };
+
+    const handleMarkerClick = (notice) => {
+        setSelectedNotice(notice);
+    };
+
     return (
         <div className="flex flex-col space-y-4">
             <div className="bg-white p-4 rounded shadow flex flex-wrap gap-4 items-center justify-between">
                 <div className="flex gap-4 items-center">
                     <h2 className="text-xl font-bold mr-4">필터</h2>
-                    <input
-                        type="text"
-                        placeholder="지역 (예: 마포구)"
-                        className="border p-2 rounded"
-                        value={filterRegion}
-                        onChange={(e) => setFilterRegion(e.target.value)}
-                    />
+                    <div className="flex space-x-2">
+                        <input
+                            type="text"
+                            placeholder="지역 (예: 마포구)"
+                            className="border p-2 rounded"
+                            value={tempFilterRegion}
+                            onChange={(e) => setTempFilterRegion(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                        <button
+                            onClick={handleSearch}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold"
+                        >
+                            검색
+                        </button>
+                    </div>
                     <select className="border p-2 rounded">
                         <option value="">모든 대상</option>
                         <option value="Youth">청년</option>
@@ -77,7 +101,7 @@ const Dashboard = () => {
 
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                 <div className="w-full md:w-2/3 h-128">
-                    <MapComponent notices={notices} />
+                    <MapComponent notices={notices} onMarkerClick={handleMarkerClick} />
                 </div>
                 <div className="w-full md:w-1/3 bg-white p-4 rounded shadow h-128 overflow-y-auto">
                     <h2 className="text-xl font-bold mb-4">공고 목록 ({notices.length})</h2>
@@ -87,23 +111,25 @@ const Dashboard = () => {
                             const end = new Date(notice.end || Date.now());
                             const now = new Date();
                             const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
-                            const dDay = diff > 0 ? `D - ${diff} ` : "마감";
-                            const dColor = diff > 0 ? "bg-blue-100 text-blue-800" : "bg-gray-200 text-gray-600";
+                            const dDay = diff > 0 ? `D-${diff}` : "마감";
 
-                            // Status Badge Logic
+                            // Status Badge Logic (Single Badge Priority)
                             const today = new Date();
                             const startDate = new Date(notice.start_date);
                             const endDate = new Date(notice.end_date);
 
-                            let status = "모집 중";
-                            let statusColor = "bg-green-100 text-green-800";
+                            let badgeText = "모집 중";
+                            let badgeColor = "bg-green-100 text-green-800";
 
                             if (today < startDate) {
-                                status = "모집 예정";
-                                statusColor = "bg-yellow-100 text-yellow-800";
+                                badgeText = "모집 예정";
+                                badgeColor = "bg-yellow-100 text-yellow-800";
                             } else if (today > endDate) {
-                                status = "신청 마감";
-                                statusColor = "bg-gray-100 text-gray-800";
+                                badgeText = "신청 마감";
+                                badgeColor = "bg-gray-100 text-gray-800";
+                            } else {
+                                // Recruitment period - Show D-Day info in badge
+                                badgeText = `모집 중 (${dDay})`;
                             }
 
                             return (
@@ -113,8 +139,7 @@ const Dashboard = () => {
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1">
                                             <div className="flex items-center space-x-2 mb-1">
-                                                <span className={`text - xs font - bold px - 2 py - 0.5 rounded ${statusColor} `}>{status}</span>
-                                                <span className={`text - xs font - bold px - 2 py - 0.5 rounded ${dColor} `}>{dDay}</span>
+                                                <span className={`text-xs font-bold px-2 py-0.5 rounded ${badgeColor}`}>{badgeText}</span>
                                             </div>
                                             <h3 className="font-semibold text-gray-800 leading-tight">{notice.title}</h3>
                                         </div>
