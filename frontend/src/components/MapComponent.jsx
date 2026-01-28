@@ -14,40 +14,44 @@ const MapComponent = ({ notices, onMarkerClick }) => {
 
             const map = new window.kakao.maps.Map(container, options);
 
-            // Markers
+            // Geocoder
+            const geocoder = new window.kakao.maps.services.Geocoder();
+
             notices.forEach(notice => {
-                // Need coordinates. For now, random offset from center if coord generic
-                // In real app, notice.address -> Geocoding -> LatLng
+                // If ID is valid and has address
+                if (notice.address) {
+                    geocoder.addressSearch(notice.address, function (result, status) {
+                        if (status === window.kakao.maps.services.Status.OK) {
+                            const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
 
-                // Dummy coords for demo
-                const lat = 37.5665 + (Math.random() - 0.5) * 0.1;
-                const lng = 126.9780 + (Math.random() - 0.5) * 0.1;
+                            const marker = new window.kakao.maps.Marker({
+                                map: map,
+                                position: coords
+                            });
 
-                const markerPosition = new window.kakao.maps.LatLng(lat, lng);
-                const marker = new window.kakao.maps.Marker({
-                    position: markerPosition
-                });
-                marker.setMap(map);
+                            // Infowindow
+                            const iwContent = `<div style="padding:5px;width:150px;font-size:12px;">${notice.title}</div>`;
+                            const infowindow = new window.kakao.maps.InfoWindow({
+                                content: iwContent
+                            });
 
-                // Infowindow
-                const iwContent = `<div style="padding:5px;">${notice.title} <br> Score: ${notice.score || 'N/A'}</div>`;
-                const infowindow = new window.kakao.maps.InfoWindow({
-                    content: iwContent
-                });
-
-                // Click Event
-                window.kakao.maps.event.addListener(marker, 'click', function () {
-                    if (onMarkerClick) {
-                        onMarkerClick(notice);
-                    }
-                });
-
-                window.kakao.maps.event.addListener(marker, 'mouseover', function () {
-                    infowindow.open(map, marker);
-                });
-                window.kakao.maps.event.addListener(marker, 'mouseout', function () {
-                    infowindow.close();
-                });
+                            // Events
+                            window.kakao.maps.event.addListener(marker, 'click', function () {
+                                if (onMarkerClick) onMarkerClick(notice);
+                            });
+                            window.kakao.maps.event.addListener(marker, 'mouseover', function () {
+                                infowindow.open(map, marker);
+                            });
+                            window.kakao.maps.event.addListener(marker, 'mouseout', function () {
+                                infowindow.close();
+                            });
+                        } else {
+                            // Fallback if address search fails (e.g. use Region + Random offset to prevent overlap)
+                            // This keeps them in the general district area at least
+                            console.warn("Geocoding failed for: " + notice.address);
+                        }
+                    });
+                }
             });
         }
     }, [notices]);
