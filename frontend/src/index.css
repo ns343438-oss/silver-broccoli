@@ -10,6 +10,8 @@ body,
   margin: 0;
   padding: 0;
   font-family: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  overflow-y: scroll;
+  /* Force scrollbar to prevent layout shift */
 }
 
 :root {
