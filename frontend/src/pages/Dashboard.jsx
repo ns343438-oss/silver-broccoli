@@ -13,9 +13,13 @@ const Dashboard = () => {
     const [showEligibilityForm, setShowEligibilityForm] = useState(false);
     const [eligibilityResults, setEligibilityResults] = useState(null);
 
+    const [targetGroup, setTargetGroup] = useState('');
+    const [sortOrder, setSortOrder] = useState('Latest');
+
+    // Auto-Search: Trigger fetch whenever filters change
     useEffect(() => {
         fetchNotices();
-    }, [filterRegion]);
+    }, [filterRegion, targetGroup, sortOrder]);
 
     const fetchNotices = async () => {
         // Use static JSON data for GitHub Pages
@@ -27,15 +31,36 @@ const Dashboard = () => {
 
             // Client-side filtering
             let filteredData = data;
+
+            // Region Filter (Fuzzy Search)
             if (filterRegion) {
-                // Remove '구' from filter if present to match relaxed search or keep strict
-                // Here we assume exact match or contains
-                filteredData = data.filter(item => item.region && item.region.includes(filterRegion));
+                // Remove '구' for flexible matching if needed, or just standard includes
+                const cleanRegion = filterRegion.replace('구', '').trim();
+                filteredData = filteredData.filter(item =>
+                    (item.region && item.region.includes(cleanRegion)) ||
+                    (item.address && item.address.includes(cleanRegion))
+                );
+            }
+
+            // Target Group Filter
+            // Target Group Filter
+            if (targetGroup) {
+                // Future implementation: Check item.qualifications or target_group
+                // currently data might not support this fully, but logic placeholder is cleaner.
             }
 
             // Mocking scores for frontend visualization if backend doesn't return them yet
             // In real integration, backend returns joined data
             const enrichedData = filteredData.map(n => ({ ...n, score: n.score || (Math.random() * 5).toFixed(1) }));
+
+            // Sorting
+            if (sortOrder === 'Score') {
+                enrichedData.sort((a, b) => b.score - a.score);
+            } else {
+                // Latest (ID desc or Date desc)
+                enrichedData.sort((a, b) => b.id - a.id);
+            }
+
             setNotices(enrichedData);
         } catch (error) {
             console.error("Failed to fetch notices", error);
@@ -46,6 +71,7 @@ const Dashboard = () => {
         const results = checkEligibility(userProfile, notices);
         setEligibilityResults(results);
         setShowEligibilityForm(false);
+        // Also auto-filter based on profile could happen here
     };
 
     const REGION_KO = {
@@ -65,9 +91,9 @@ const Dashboard = () => {
     const handleReset = () => {
         setTempFilterRegion('');
         setFilterRegion('');
-        // fetchNotices will auto-trigger due to useEffect dependency on filterRegion
-        // But if we want to ensure full reset including client-side filtering logic:
-        fetchNotices();
+        setTargetGroup('');
+        setSortOrder('Latest');
+        // fetchNotices auto-triggers
     };
 
     const handleKeyDown = (e) => {
@@ -81,48 +107,74 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="flex flex-col space-y-4">
-            <div className="bg-white p-4 rounded shadow flex flex-wrap gap-4 items-center justify-between">
-                <div className="flex gap-4 items-center flex-wrap">
-                    <h2 className="text-xl font-bold mr-4">필터</h2>
-                    <select className="border p-2 rounded">
-                        <option value="">모든 대상</option>
-                        <option value="Youth">청년</option>
-                        <option value="Newlywed">신혼부부</option>
-                    </select>
-                    <select className="border p-2 rounded">
-                        <option value="Latest">최신순</option>
-                        <option value="Score">가성비순 (점수)</option>
-                    </select>
-                    <div className="flex space-x-2">
-                        <input
-                            type="text"
-                            placeholder="지역 (예: 마포구)"
-                            className="border p-2 rounded"
-                            value={tempFilterRegion}
-                            onChange={(e) => setTempFilterRegion(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                        />
-                        <button
-                            onClick={handleSearch}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold"
+        <div className="flex flex-col space-y-6">
+            {/* Search & Filter Section (Gov Style Box) */}
+            <div className="bg-white p-6 border-t-4 border-gov-navy shadow-sm flex flex-wrap gap-4 items-end justify-between">
+                <div className="flex gap-4 items-end flex-wrap flex-1">
+
+                    {/* Target Group */}
+                    <div className="flex flex-col space-y-1">
+                        <label className="text-sm font-bold text-gov-navy">대상 선택</label>
+                        <select
+                            className="border border-gray-300 p-2 min-w-[120px] focus:outline-none focus:border-gov-blue bg-white"
+                            value={targetGroup}
+                            onChange={(e) => setTargetGroup(e.target.value)}
                         >
-                            검색
-                        </button>
-                        <button
-                            onClick={handleReset}
-                            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded font-bold"
-                        >
-                            초기화
-                        </button>
+                            <option value="">전체 (All)</option>
+                            <option value="Youth">청년 (19~39세)</option>
+                            <option value="Newlywed">신혼부부</option>
+                        </select>
                     </div>
+
+                    {/* Sort Order */}
+                    <div className="flex flex-col space-y-1">
+                        <label className="text-sm font-bold text-gov-navy">정렬 기준</label>
+                        <select
+                            className="border border-gray-300 p-2 min-w-[120px] focus:outline-none focus:border-gov-blue bg-white"
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value)}
+                        >
+                            <option value="Latest">최신순</option>
+                            <option value="Score">가성비순 (점수)</option>
+                        </select>
+                    </div>
+
+                    {/* Region Search */}
+                    <div className="flex flex-col space-y-1 flex-1 max-w-md">
+                        <label className="text-sm font-bold text-gov-navy">지역 검색</label>
+                        <div className="flex">
+                            <input
+                                type="text"
+                                placeholder="지역명 입력 (예: 강남, 마포)"
+                                className="border border-gray-300 p-2 flex-grow focus:outline-none focus:border-gov-blue"
+                                value={tempFilterRegion}
+                                onChange={(e) => setTempFilterRegion(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                            />
+                            <button
+                                onClick={handleSearch}
+                                className="bg-gov-navy text-white px-4 py-2 font-bold hover:bg-opacity-90 transition-colors"
+                            >
+                                검색
+                            </button>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleReset}
+                        className="bg-gray-100 border border-gray-300 text-gray-600 px-4 py-2 hover:bg-gray-200 transition-colors h-[42px]"
+                    >
+                        ↺ 초기화
+                    </button>
                 </div>
+
                 <div>
                     <button
                         onClick={() => setShowEligibilityForm(true)}
-                        className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded shadow animate-pulse"
+                        className="bg-gov-blue text-white font-bold py-3 px-6 shadow hover:bg-gov-navy transition-colors flex items-center gap-2"
                     >
-                        📋 내 자격 확인하기 (Click!)
+                        <span>📋</span>
+                        <span>내 자격 확인하기</span>
                     </button>
                 </div>
             </div>
