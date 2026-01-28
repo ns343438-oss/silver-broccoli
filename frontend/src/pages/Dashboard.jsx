@@ -202,7 +202,7 @@ const Dashboard = () => {
                 <div className="flex gap-2">
                     <button
                         onClick={() => setShowSubscription(true)}
-                        className="bg-yellow-400 text-gov-navy font-bold py-3 px-6 shadow hover:bg-yellow-500 transition-colors flex items-center gap-2"
+                        className="bg-gov-gold text-gov-navy font-bold py-3 px-6 shadow hover:bg-yellow-400 transition-colors flex items-center gap-2 rounded"
                     >
                         <span>🔔</span>
                         <span>알림 받기</span>
@@ -210,7 +210,7 @@ const Dashboard = () => {
 
                     <button
                         onClick={() => setShowEligibilityForm(true)}
-                        className="bg-gov-blue text-white font-bold py-3 px-6 shadow hover:bg-gov-navy transition-colors flex items-center gap-2"
+                        className="bg-gov-navy text-white font-bold py-3 px-6 shadow hover:bg-opacity-90 transition-colors flex items-center gap-2 rounded"
                     >
                         <span>📋</span>
                         <span>내 자격 확인하기</span>
