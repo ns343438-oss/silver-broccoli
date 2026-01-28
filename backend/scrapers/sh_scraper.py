@@ -73,14 +73,30 @@ class SHScraper(BaseScraper):
 
                             # Get Link
                             href = title_el.get_attribute("href")
+                            onclick = title_el.get_attribute("onclick") or ""
                             detail_url = ""
-                            if "http" in href:
+                            
+                            # Case 1: Direct Link (Rare)
+                            if href and "http" in href:
                                 detail_url = href
-                            elif "javascript" not in href and href != "#":
+                            # Case 2: Relative Link
+                            elif href and "javascript" not in href and href != "#":
                                 detail_url = "https://www.i-sh.co.kr" + href
+                            # Case 3: Onclick with getDetailView (or fn_view fallback)
+                            elif "getDetailView" in onclick or "fn_view" in onclick:
+                                import re
+                                # Match getDetailView('123') or fn_view('123')
+                                match = re.search(r"(?:getDetailView|fn_view)\s*\(\s*['\"]?(\d+)", onclick)
+                                if match:
+                                    seq = match.group(1)
+                                    # Construct View URL
+                                    detail_url = f"https://www.i-sh.co.kr/main/lay2/program/S1T294C295/www/brd/m_241/view.do?seq={seq}"
+                                else:
+                                    detail_url = f"https://www.google.com/search?q={title}"
                             else:
-                                hash_str = hashlib.md5(title.encode()).hexdigest()
-                                detail_url = f"https://www.i-sh.co.kr/mock/{hash_str}"
+                                print(f"DEBUG: No recognizable link pattern. Href: {href}, Onclick: {onclick}")
+                                # Final Fallback
+                                detail_url = f"https://www.google.com/search?q={title}"
                             
                             # Region Logic
                             matches = {
