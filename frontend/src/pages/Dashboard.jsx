@@ -86,6 +86,8 @@ const Dashboard = () => {
             setNotices(enrichedData);
         } catch (error) {
             console.error("Failed to fetch notices", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
