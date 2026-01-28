@@ -48,8 +48,26 @@ const Dashboard = () => {
         setShowEligibilityForm(false);
     };
 
+    const REGION_KO = {
+        'Seoul': '서울시',
+        'Gangnam-gu': '강남구',
+        'Songpa-gu': '송파구',
+        'Gangdong-gu': '강동구',
+        'Mapo-gu': '마포구',
+        'Seodaemun-gu': '서대문구'
+        // Add more as needed
+    };
+
     const handleSearch = () => {
         setFilterRegion(tempFilterRegion);
+    };
+
+    const handleReset = () => {
+        setTempFilterRegion('');
+        setFilterRegion('');
+        // fetchNotices will auto-trigger due to useEffect dependency on filterRegion
+        // But if we want to ensure full reset including client-side filtering logic:
+        fetchNotices();
     };
 
     const handleKeyDown = (e) => {
@@ -65,8 +83,17 @@ const Dashboard = () => {
     return (
         <div className="flex flex-col space-y-4">
             <div className="bg-white p-4 rounded shadow flex flex-wrap gap-4 items-center justify-between">
-                <div className="flex gap-4 items-center">
+                <div className="flex gap-4 items-center flex-wrap">
                     <h2 className="text-xl font-bold mr-4">필터</h2>
+                    <select className="border p-2 rounded">
+                        <option value="">모든 대상</option>
+                        <option value="Youth">청년</option>
+                        <option value="Newlywed">신혼부부</option>
+                    </select>
+                    <select className="border p-2 rounded">
+                        <option value="Latest">최신순</option>
+                        <option value="Score">가성비순 (점수)</option>
+                    </select>
                     <div className="flex space-x-2">
                         <input
                             type="text"
@@ -82,12 +109,13 @@ const Dashboard = () => {
                         >
                             검색
                         </button>
+                        <button
+                            onClick={handleReset}
+                            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded font-bold"
+                        >
+                            초기화
+                        </button>
                     </div>
-                    <select className="border p-2 rounded">
-                        <option value="">모든 대상</option>
-                        <option value="Youth">청년</option>
-                        <option value="Newlywed">신혼부부</option>
-                    </select>
                 </div>
                 <div>
                     <button
@@ -145,7 +173,7 @@ const Dashboard = () => {
                                         </div>
                                     </div>
                                     <div className="mt-2 text-sm text-gray-600 flex justify-between items-center">
-                                        <span>{notice.region}</span>
+                                        <span>{REGION_KO[notice.region] || notice.region}</span>
                                         <div className="flex space-x-2">
                                             <span className={`text - xs px - 2 py - 1 rounded text - white ${notice.score >= 4 ? 'bg-green-500' : 'bg-yellow-500'} `}>
                                                 ★ {notice.score}

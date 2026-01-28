@@ -7,7 +7,8 @@ const EligibilityForm = ({ onSubmit, onClose }) => {
         assets: '',
         homelessDuration: '0',
         hasNewborn: false,
-        email: ''
+        email: '',
+        agreed: false
     });
 
     const [error, setError] = useState(null);
@@ -38,6 +39,12 @@ const EligibilityForm = ({ onSubmit, onClose }) => {
         // Email format check simulation (Simple)
         if (!formData.email.includes('@')) {
             setError("E04: 이메일 발송에 실패했습니다. 메일 주소 형식을 확인해주십시오.");
+            return false;
+        }
+
+        // Privacy Agreement Check
+        if (!formData.agreed) {
+            setError("개인정보 수집 및 이용에 동의해야 맞춤형 공고를 추천받을 수 있습니다.");
             return false;
         }
 
@@ -128,13 +135,35 @@ const EligibilityForm = ({ onSubmit, onClose }) => {
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">연락처 (이메일)</label>
                         <input
-                            type="text" // Using text to allow validation logic to catch bad formats manually for E04 demo
+                            type="text"
                             name="email"
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="hong@example.com"
                             className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 outline-none"
                         />
+                    </div>
+
+                    <div className="bg-gray-100 p-3 rounded text-xs text-gray-600 h-24 overflow-y-auto mb-2 border">
+                        <p className="font-bold mb-1">[개인정보 수집 및 이용 동의]</p>
+                        <p>1. 수집 목적: 맞춤형 임대주택 공고 추천 및 알림 발송</p>
+                        <p>2. 수집 항목: 소득, 자산, 무주택 기간, 신생아 유무, 이메일</p>
+                        <p>3. 보유 기간: 회원 탈퇴 시 또는 서비스 종료 시까지</p>
+                        <p className="mt-1">※ 귀하는 동의를 거부할 권리가 있으나, 거부 시 서비스 이용이 제한될 수 있습니다.</p>
+                    </div>
+
+                    <div className="flex items-center space-x-2 pb-2">
+                        <input
+                            type="checkbox"
+                            id="agreed"
+                            name="agreed"
+                            checked={formData.agreed}
+                            onChange={handleChange}
+                            className="w-4 h-4 text-blue-600 rounded"
+                        />
+                        <label htmlFor="agreed" className="text-sm text-gray-700 cursor-pointer">
+                            [필수] 위 내용을 확인하였으며 개인정보 수집에 동의합니다.
+                        </label>
                     </div>
 
                     <div className="pt-2">
