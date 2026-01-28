@@ -14,8 +14,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-      - run: npm ci
+      - run: npm install
       
       # 2. 빌드
       - run: npm run build
@@ -24,7 +23,7 @@ jobs:
       # 하지만 런타임에 생성된 파일이므로 빌드 전 실행이 중요함.
       - uses: actions/upload-pages-artifact@v3 # 'actions/'를 붙였습니다!
         with:
-          path: './dist'
+          path: './frontend/dist'
   deploy:
     needs: build
     runs-on: ubuntu-latest
