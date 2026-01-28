@@ -14,7 +14,7 @@ function App() {
             <div className="flex justify-between h-16">
               {/* Logo Section */}
               <Link to="/about" className="flex-shrink-0 flex items-center">
-                <img className="h-10 w-auto" src={logo} alt="e-나라집" />
+                <img className="h-14 w-auto" src={logo} alt="e-나라집" />
               </Link>
 
               {/* GNB (Tabs) */}
