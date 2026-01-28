@@ -48,31 +48,43 @@ const NoticeDetail = ({ notice, onClose }) => {
                     </div>
 
                     {/* Price Analysis - Show only if data exists */}
-                    {(notice.rent > 0 || notice.deposit > 0) ? (
-                        <div>
-                            <h3 className="text-lg font-bold text-gray-800 mb-2">가격 분석</h3>
-                            <div className="flex items-center space-x-4">
-                                <div className="flex-1">
-                                    <div className="text-xs text-gray-500 mb-1">공고 임대료</div>
-                                    <div className="h-4 bg-gray-200 rounded overflow-hidden">
-                                        <div className="h-full bg-blue-500" style={{ width: '60%' }}></div>
+                    {(notice.rent > 0 || notice.deposit > 0) ? (() => {
+                        const { status, diff } = analyzePrice(notice);
+                        const statusColor = status === 'Cheap' ? 'text-green-600' : 'text-blue-600';
+                        return (
+                            <div className="bg-gray-50 p-3 rounded border border-gray-200">
+                                <h3 className="text-lg font-bold text-gov-navy mb-2">가격 분석</h3>
+                                <div className="flex items-center space-x-4">
+                                    <div className="flex-1">
+                                        <div className="text-xs text-gray-500 mb-1">공고 임대료</div>
+                                        <div className="h-4 bg-gray-200 rounded overflow-hidden">
+                                            <div className="h-full bg-blue-500" style={{ width: '60%' }}></div>
+                                        </div>
+                                        <div className="text-xs font-bold text-blue-600">
+                                            {notice.rent ? `${(notice.rent / 10000).toFixed(0)}만원` : '0원'}
+                                        </div>
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="text-xs text-gray-500 mb-1">주변 시세 (예상)</div>
+                                        <div className="h-4 bg-gray-200 rounded overflow-hidden">
+                                            <div className="h-full bg-red-400" style={{ width: '100%' }}></div>
+                                        </div>
+                                        <div className="text-xs font-bold text-gray-500">
+                                            {notice.rent ? `${(notice.rent * 1.3 / 10000).toFixed(0)}만원` : '-'}
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex-1">
-                                    <div className="text-xs text-gray-500 mb-1">주변 시세 (500m)</div>
-                                    <div className="h-4 bg-gray-200 rounded overflow-hidden">
-                                        <div className="h-full bg-red-400" style={{ width: '100%' }}></div>
-                                    </div>
-                                </div>
+                                <p className="text-xs text-gray-600 mt-2 text-right">
+                                    * 주변 시세 대비 <span className={`font-bold ${statusColor}`}>
+                                        약 {diff}% ({status === 'Cheap' ? '매우 저렴' : '적정'})
+                                    </span> 합니다.
+                                </p>
                             </div>
-                            <p className="text-xs text-gray-500 mt-2 text-right">
-                                * 이 공고는 주변 시세 대비 약 <span className="font-bold text-green-600">{notice.price_diff_percent}%</span> 저렴합니다.
-                            </p>
-                        </div>
-                    ) : (
-                        <div>
-                            <h3 className="text-lg font-bold text-gray-800 mb-2">가격 분석</h3>
-                            <p className="text-sm text-gray-500">💰 상세 임대료 정보가 없어 가격 분석을 제공하지 않습니다.</p>
+                        );
+                    })() : (
+                        <div className="bg-gray-50 p-3 rounded border border-gray-200">
+                            <h3 className="text-lg font-bold text-gray-400 mb-2">가격 분석</h3>
+                            <p className="text-sm text-gray-400">정보가 부족하여 분석할 수 없습니다.</p>
                         </div>
                     )}
 

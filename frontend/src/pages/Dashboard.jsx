@@ -4,6 +4,7 @@ import NoticeDetail from '../components/NoticeDetail';
 import EligibilityForm from '../components/EligibilityForm';
 import ResultModal from '../components/ResultModal';
 import { checkEligibility } from '../utils/MatchingLogic';
+import { calculateScore } from '../utils/ScoringLogic';
 
 const Dashboard = () => {
     const [notices, setNotices] = useState([]);
@@ -32,32 +33,31 @@ const Dashboard = () => {
             // Client-side filtering
             let filteredData = data;
 
-            // Region Filter (Fuzzy Search)
+            // Region Filter (Fuzzy Search & Deterministic)
             if (filterRegion) {
-                // Remove '구' for flexible matching if needed, or just standard includes
                 const cleanRegion = filterRegion.replace('구', '').trim();
                 filteredData = filteredData.filter(item =>
                     (item.region && item.region.includes(cleanRegion)) ||
-                    (item.address && item.address.includes(cleanRegion))
+                    (item.address && item.address.includes(cleanRegion)) ||
+                    (item.title && item.title.includes(cleanRegion))
                 );
             }
 
             // Target Group Filter
-            // Target Group Filter
             if (targetGroup) {
-                // Future implementation: Check item.qualifications or target_group
-                // currently data might not support this fully, but logic placeholder is cleaner.
+                // Future logic placeholder
             }
 
-            // Mocking scores for frontend visualization if backend doesn't return them yet
-            // In real integration, backend returns joined data
-            const enrichedData = filteredData.map(n => ({ ...n, score: n.score || (Math.random() * 5).toFixed(1) }));
+            // Deterministic Score Generation
+            const enrichedData = filteredData.map(n => ({
+                ...n,
+                score: calculateScore(n)
+            }));
 
             // Sorting
             if (sortOrder === 'Score') {
                 enrichedData.sort((a, b) => b.score - a.score);
             } else {
-                // Latest (ID desc or Date desc)
                 enrichedData.sort((a, b) => b.id - a.id);
             }
 
@@ -71,7 +71,6 @@ const Dashboard = () => {
         const results = checkEligibility(userProfile, notices);
         setEligibilityResults(results);
         setShowEligibilityForm(false);
-        // Also auto-filter based on profile could happen here
     };
 
     const REGION_KO = {
@@ -93,7 +92,6 @@ const Dashboard = () => {
         setFilterRegion('');
         setTargetGroup('');
         setSortOrder('Latest');
-        // fetchNotices auto-triggers
     };
 
     const handleKeyDown = (e) => {
@@ -184,63 +182,73 @@ const Dashboard = () => {
                     <MapComponent notices={notices} onMarkerClick={handleMarkerClick} />
                 </div>
                 <div className="w-full md:w-1/3 bg-white p-4 rounded shadow h-128 overflow-y-auto">
-                    <h2 className="text-xl font-bold mb-4">공고 목록 ({notices.length})</h2>
-                    <ul>
-                        {notices.map((notice, idx) => {
-                            // D-Day Calc
-                            const end = new Date(notice.end || Date.now());
-                            const now = new Date();
-                            const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
-                            const dDay = diff > 0 ? `D-${diff}` : "마감";
+                    <h2 className="text-xl font-bold mb-4 text-gov-navy">공고 목록 ({notices.length})</h2>
 
-                            // Status Badge Logic (Single Badge Priority)
-                            const today = new Date();
-                            const startDate = new Date(notice.start_date);
-                            const endDate = new Date(notice.end_date);
+                    {notices.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+                            <span className="text-4xl mb-2">🔍</span>
+                            <p>검색 결과가 없습니다.</p>
+                            <p className="text-sm">다른 지역이나 조건으로 검색해보세요.</p>
+                            <button
+                                onClick={handleReset}
+                                className="mt-4 text-gov-blue underline text-sm"
+                            >
+                                전체 목록 보기
+                            </button>
+                        </div>
+                    ) : (
+                        <ul>
+                            {notices.map((notice, idx) => {
+                                // D-Day Calc
+                                const end = new Date(notice.end || Date.now());
+                                const now = new Date();
+                                const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
 
-                            let badgeText = "모집 중";
-                            let badgeColor = "bg-green-100 text-green-800";
+                                // Status Badge Logic
+                                const startDate = new Date(notice.start_date);
+                                const endDate = new Date(notice.end_date);
 
-                            if (today < startDate) {
-                                badgeText = "모집 예정";
-                                badgeColor = "bg-yellow-100 text-yellow-800";
-                            } else if (today > endDate) {
-                                badgeText = "신청 마감";
-                                badgeColor = "bg-gray-100 text-gray-800";
-                            } else {
-                                // Recruitment period - Simple badge as requested
-                                badgeText = "모집 중";
-                            }
+                                let badgeText = "모집 중";
+                                let badgeColor = "bg-green-100 text-green-800";
 
-                            return (
-                                <li key={idx} className="border-b py-3 hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors"
-                                    onClick={() => setSelectedNotice(notice)}
-                                >
-                                    <div className="flex justify-between items-start">
-                                        <div className="flex-1">
-                                            <div className="flex items-center space-x-2 mb-1">
-                                                <span className={`text-xs font-bold px-2 py-0.5 rounded ${badgeColor}`}>{badgeText}</span>
+                                if (now < startDate) {
+                                    badgeText = "모집 예정";
+                                    badgeColor = "bg-yellow-100 text-yellow-800";
+                                } else if (now > endDate) {
+                                    badgeText = "신청 마감";
+                                    badgeColor = "bg-gray-100 text-gray-800";
+                                }
+
+                                return (
+                                    <li key={idx} className="border-b py-3 hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors"
+                                        onClick={() => setSelectedNotice(notice)}
+                                    >
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1">
+                                                <div className="flex items-center space-x-2 mb-1">
+                                                    <span className={`text-xs font-bold px-2 py-0.5 rounded ${badgeColor}`}>{badgeText}</span>
+                                                </div>
+                                                <h3 className="font-semibold text-gray-800 leading-tight">{notice.title}</h3>
                                             </div>
-                                            <h3 className="font-semibold text-gray-800 leading-tight">{notice.title}</h3>
                                         </div>
-                                    </div>
-                                    <div className="mt-2 text-sm text-gray-600 flex justify-between items-center">
-                                        <span>{REGION_KO[notice.region] || notice.region}</span>
-                                        <div className="flex space-x-2">
-                                            <span className={`text - xs px - 2 py - 1 rounded text - white ${notice.score >= 4 ? 'bg-green-500' : 'bg-yellow-500'} `}>
-                                                ★ {notice.score}
-                                            </span>
+                                        <div className="mt-2 text-sm text-gray-600 flex justify-between items-center">
+                                            <span>{REGION_KO[notice.region] || notice.region}</span>
+                                            <div className="flex space-x-2">
+                                                <span className={`text-xs px-2 py-1 rounded text-white ${notice.score >= 4 ? 'bg-green-500' : 'bg-yellow-500'} `}>
+                                                    ★ {notice.score}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    {notice.price_diff_percent > 0 && (
-                                        <p className="text-xs text-green-600 mt-1 font-medium">
-                                            평균보다 {notice.price_diff_percent}% 저렴해요!
-                                        </p>
-                                    )}
-                                </li>
-                            )
-                        })}
-                    </ul>
+                                        {notice.price_diff_percent > 0 && (
+                                            <p className="text-xs text-green-600 mt-1 font-medium">
+                                                평균보다 {notice.price_diff_percent}% 저렴해요!
+                                            </p>
+                                        )}
+                                    </li>
+                                )
+                            })}
+                        </ul>
+                    )}
                 </div>
             </div>
 
