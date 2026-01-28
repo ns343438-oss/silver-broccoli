@@ -11,10 +11,10 @@ function App() {
       <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
         <header className="bg-white border-b shadow-sm z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
+            <div className="flex justify-between h-20">
               {/* Logo Section */}
               <Link to="/about" className="flex-shrink-0 flex items-center">
-                <img className="h-14 w-auto" src={logo} alt="e-나라집" />
+                <img className="h-16 w-auto" src={logo} alt="e-나라집" />
               </Link>
 
               {/* GNB (Tabs) */}
