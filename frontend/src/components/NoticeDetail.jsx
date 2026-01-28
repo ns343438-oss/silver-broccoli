@@ -47,27 +47,34 @@ const NoticeDetail = ({ notice, onClose }) => {
                         </div>
                     </div>
 
-                    {/* Price Analysis */}
-                    <div>
-                        <h3 className="text-lg font-bold text-gray-800 mb-2">가격 분석</h3>
-                        <div className="flex items-center space-x-4">
-                            <div className="flex-1">
-                                <div className="text-xs text-gray-500 mb-1">공고 임대료</div>
-                                <div className="h-4 bg-gray-200 rounded overflow-hidden">
-                                    <div className="h-full bg-blue-500" style={{ width: '60%' }}></div>
+                    {/* Price Analysis - Show only if data exists */}
+                    {(notice.rent > 0 || notice.deposit > 0) ? (
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-800 mb-2">가격 분석</h3>
+                            <div className="flex items-center space-x-4">
+                                <div className="flex-1">
+                                    <div className="text-xs text-gray-500 mb-1">공고 임대료</div>
+                                    <div className="h-4 bg-gray-200 rounded overflow-hidden">
+                                        <div className="h-full bg-blue-500" style={{ width: '60%' }}></div>
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="text-xs text-gray-500 mb-1">주변 시세 (500m)</div>
+                                    <div className="h-4 bg-gray-200 rounded overflow-hidden">
+                                        <div className="h-full bg-red-400" style={{ width: '100%' }}></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="flex-1">
-                                <div className="text-xs text-gray-500 mb-1">주변 시세 (500m)</div>
-                                <div className="h-4 bg-gray-200 rounded overflow-hidden">
-                                    <div className="h-full bg-red-400" style={{ width: '100%' }}></div>
-                                </div>
-                            </div>
+                            <p className="text-xs text-gray-500 mt-2 text-right">
+                                * 이 공고는 주변 시세 대비 약 <span className="font-bold text-green-600">{notice.price_diff_percent}%</span> 저렴합니다.
+                            </p>
                         </div>
-                        <p className="text-xs text-gray-500 mt-2 text-right">
-                            * 이 공고는 주변 시세 대비 약 <span className="font-bold text-green-600">{notice.price_diff_percent}%</span> 저렴합니다.
-                        </p>
-                    </div>
+                    ) : (
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-800 mb-2">가격 분석</h3>
+                            <p className="text-sm text-gray-500">💰 상세 임대료 정보가 없어 가격 분석을 제공하지 않습니다.</p>
+                        </div>
+                    )}
 
                     {/* Address */}
                     <div>
@@ -77,9 +84,13 @@ const NoticeDetail = ({ notice, onClose }) => {
                 </div>
 
                 <div className="p-4 border-t bg-gray-50 text-right">
-                    <a href={notice.link} target="_blank" rel="noopener noreferrer"
-                        className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors">
-                        원문 공고 보러가기
+                    <a
+                        href={notice.link && notice.link.includes('mock') ? `https://www.google.com/search?q=${encodeURIComponent(notice.title)}` : notice.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors"
+                    >
+                        {notice.link && notice.link.includes('mock') ? '공고 검색하기 (Google)' : '원문 공고 보러가기'}
                     </a>
                 </div>
             </div>

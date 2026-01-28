@@ -156,8 +156,8 @@ const Dashboard = () => {
                                 badgeText = "신청 마감";
                                 badgeColor = "bg-gray-100 text-gray-800";
                             } else {
-                                // Recruitment period - Show D-Day info in badge
-                                badgeText = `모집 중 (${dDay})`;
+                                // Recruitment period - Simple badge as requested
+                                badgeText = "모집 중";
                             }
 
                             return (
