@@ -5,6 +5,7 @@ import EligibilityForm from '../components/EligibilityForm';
 import ResultModal from '../components/ResultModal';
 import { checkEligibility } from '../utils/MatchingLogic';
 import { calculateScore } from '../utils/ScoringLogic';
+import { getFavorites, toggleFavorite } from '../utils/FavoritesManager';
 
 const Dashboard = () => {
     const [notices, setNotices] = useState([]);
@@ -17,12 +18,25 @@ const Dashboard = () => {
     const [targetGroup, setTargetGroup] = useState('');
     const [sortOrder, setSortOrder] = useState('Latest');
 
-    // Auto-Search: Trigger fetch whenever filters change
+    // Favorites State
+    const [favorites, setFavorites] = useState([]);
+    const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Initial Load & Favorites Sync
     useEffect(() => {
+        setFavorites(getFavorites());
         fetchNotices();
-    }, [filterRegion, targetGroup, sortOrder]);
+    }, [filterRegion, targetGroup, sortOrder, showOnlyFavorites]);
+
+    const handleToggleFavorite = (e, id) => {
+        e.stopPropagation(); // Prevent opening detail modal
+        const updated = toggleFavorite(id);
+        setFavorites(updated);
+    };
 
     const fetchNotices = async () => {
+        setIsLoading(true);
         // Use static JSON data for GitHub Pages
         let url = import.meta.env.BASE_URL + 'data/notices.json';
 
@@ -46,6 +60,12 @@ const Dashboard = () => {
             // Target Group Filter
             if (targetGroup) {
                 // Future logic placeholder
+            }
+
+            // Favorites Filter
+            if (showOnlyFavorites) {
+                const currentFavs = getFavorites(); // Use fresh state
+                filteredData = filteredData.filter(item => currentFavs.includes(item.id));
             }
 
             // Deterministic Score Generation
@@ -79,7 +99,7 @@ const Dashboard = () => {
         'Songpa-gu': '송파구',
         'Gangdong-gu': '강동구',
         'Mapo-gu': '마포구',
-        'Seodaemun-gu': '서대문구'
+        'Seodaemun-gu': '서대대문구'
         // Add more as needed
     };
 
@@ -92,6 +112,7 @@ const Dashboard = () => {
         setFilterRegion('');
         setTargetGroup('');
         setSortOrder('Latest');
+        setShowOnlyFavorites(false);
     };
 
     const handleKeyDown = (e) => {
@@ -159,6 +180,14 @@ const Dashboard = () => {
                     </div>
 
                     <button
+                        onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+                        className={`border px-4 py-2 transition-colors h-[42px] font-bold flex items-center gap-2 ${showOnlyFavorites ? 'bg-red-50 text-red-600 border-red-200' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
+                    >
+                        <span>{showOnlyFavorites ? '❤️' : '🤍'}</span>
+                        <span>관심 공고만</span>
+                    </button>
+
+                    <button
                         onClick={handleReset}
                         className="bg-gray-100 border border-gray-300 text-gray-600 px-4 py-2 hover:bg-gray-200 transition-colors h-[42px]"
                     >
@@ -186,12 +215,25 @@ const Dashboard = () => {
 
                 {/* Notice List */}
                 <div className="w-full md:w-1/3 bg-white p-4 rounded shadow h-96 md:h-[600px] overflow-y-auto">
-                    <h2 className="text-xl font-bold mb-4 text-gov-navy">공고 목록 ({notices.length})</h2>
+                    <h2 className="text-xl font-bold mb-4 text-gov-navy">
+                        {showOnlyFavorites ? '관심 공고 목록' : '공고 목록'} ({notices.length})
+                    </h2>
 
-                    {notices.length === 0 ? (
+                    {isLoading ? (
+                        <div className="space-y-4 animate-pulse">
+                            {[...Array(5)].map((_, i) => (
+                                <div key={i} className="flex space-x-4 p-4 border-b">
+                                    <div className="flex-1 space-y-2">
+                                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : notices.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-64 text-gray-500">
                             <span className="text-4xl mb-2">🔍</span>
-                            <p>검색 결과가 없습니다.</p>
+                            <p>{showOnlyFavorites ? '관심 등록한 공고가 없습니다.' : '검색 결과가 없습니다.'}</p>
                             <p className="text-sm">다른 지역이나 조건으로 검색해보세요.</p>
                             <button
                                 onClick={handleReset}
@@ -223,17 +265,26 @@ const Dashboard = () => {
                                     badgeColor = "bg-gray-100 text-gray-800";
                                 }
 
+                                const isFav = favorites.includes(notice.id);
+
                                 return (
-                                    <li key={idx} className="border-b py-3 hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors"
+                                    <li key={idx} className="border-b py-3 hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors relative group"
                                         onClick={() => setSelectedNotice(notice)}
                                     >
                                         <div className="flex justify-between items-start">
-                                            <div className="flex-1">
+                                            <div className="flex-1 pr-8">
                                                 <div className="flex items-center space-x-2 mb-1">
                                                     <span className={`text-xs font-bold px-2 py-0.5 rounded ${badgeColor}`}>{badgeText}</span>
                                                 </div>
                                                 <h3 className="font-semibold text-gray-800 leading-tight">{notice.title}</h3>
                                             </div>
+                                            <button
+                                                className={`absolute top-2 right-2 p-2 rounded-full hover:bg-gray-200 transition-colors z-10 ${isFav ? 'text-red-500' : 'text-gray-300'}`}
+                                                onClick={(e) => handleToggleFavorite(e, notice.id)}
+                                                title={isFav ? "관심 해제" : "관심 등록"}
+                                            >
+                                                {isFav ? '❤️' : '🤍'}
+                                            </button>
                                         </div>
                                         <div className="mt-2 text-sm text-gray-600 flex justify-between items-center">
                                             <span>{REGION_KO[notice.region] || notice.region}</span>
