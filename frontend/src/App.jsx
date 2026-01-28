@@ -11,7 +11,7 @@ function App() {
               <span className="text-gov-navy font-bold text-lg">🏛️</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight break-keep">
-              서울시 임대주택 대시보드
+              e-나라집
             </h1>
           </div>
         </div>
