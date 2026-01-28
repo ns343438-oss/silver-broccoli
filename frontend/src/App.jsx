@@ -14,9 +14,6 @@ function App() {
               서울시 임대주택 대시보드
             </h1>
           </div>
-          <div className="text-gray-300 text-sm self-end sm:self-center">
-            대한민국 정부 스타일
-          </div>
         </div>
       </header>
       <main className="flex-grow">
