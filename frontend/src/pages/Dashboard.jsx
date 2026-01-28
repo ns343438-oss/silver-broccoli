@@ -3,6 +3,7 @@ import MapComponent from '../components/MapComponent';
 import NoticeDetail from '../components/NoticeDetail';
 import EligibilityForm from '../components/EligibilityForm';
 import ResultModal from '../components/ResultModal';
+import SubscriptionModal from '../components/SubscriptionModal';
 import { checkEligibility } from '../utils/MatchingLogic';
 import { calculateScore } from '../utils/ScoringLogic';
 import { getFavorites, toggleFavorite } from '../utils/FavoritesManager';
@@ -13,6 +14,7 @@ const Dashboard = () => {
     const [filterRegion, setFilterRegion] = useState('');
     const [selectedNotice, setSelectedNotice] = useState(null);
     const [showEligibilityForm, setShowEligibilityForm] = useState(false);
+    const [showSubscription, setShowSubscription] = useState(false);
     const [eligibilityResults, setEligibilityResults] = useState(null);
 
     const [targetGroup, setTargetGroup] = useState('');
@@ -195,7 +197,15 @@ const Dashboard = () => {
                     </button>
                 </div>
 
-                <div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowSubscription(true)}
+                        className="bg-yellow-400 text-gov-navy font-bold py-3 px-6 shadow hover:bg-yellow-500 transition-colors flex items-center gap-2"
+                    >
+                        <span>🔔</span>
+                        <span>알림 받기</span>
+                    </button>
+
                     <button
                         onClick={() => setShowEligibilityForm(true)}
                         className="bg-gov-blue text-white font-bold py-3 px-6 shadow hover:bg-gov-navy transition-colors flex items-center gap-2"
@@ -316,6 +326,10 @@ const Dashboard = () => {
                     onSubmit={handleEligibilitySubmit}
                     onClose={() => setShowEligibilityForm(false)}
                 />
+            )}
+
+            {showSubscription && (
+                <SubscriptionModal onClose={() => setShowSubscription(false)} />
             )}
 
             {eligibilityResults && (

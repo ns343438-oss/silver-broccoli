@@ -1,0 +1,48 @@
+name: Daily Scraper
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Daily at 00:00 UTC (09:00 KST)
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install playwright
+          playwright install chromium
+
+      - name: Run Collector (Scrape Data)
+        run: |
+          cd backend
+          python collector.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Export Notices to JSON
+        run: |
+          python export_notices.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add frontend/public/data/notices.json
+          git commit -m "Auto-update notices.json [skip ci]" || echo "No changes to commit"
+          git push
