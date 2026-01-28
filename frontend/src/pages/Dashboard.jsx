@@ -12,16 +12,24 @@ const Dashboard = () => {
     }, [filterRegion]);
 
     const fetchNotices = async () => {
-        let url = 'http://localhost:8000/notices';
-        if (filterRegion) {
-            url += `?region=${filterRegion}`;
-        }
+        // Use static JSON data for GitHub Pages
+        let url = import.meta.env.BASE_URL + 'data/notices.json';
+
         try {
             const response = await fetch(url);
             const data = await response.json();
+
+            // Client-side filtering
+            let filteredData = data;
+            if (filterRegion) {
+                // Remove '구' from filter if present to match relaxed search or keep strict
+                // Here we assume exact match or contains
+                filteredData = data.filter(item => item.region && item.region.includes(filterRegion));
+            }
+
             // Mocking scores for frontend visualization if backend doesn't return them yet
             // In real integration, backend returns joined data
-            const enrichedData = data.map(n => ({ ...n, score: (Math.random() * 5).toFixed(1) }));
+            const enrichedData = filteredData.map(n => ({ ...n, score: n.score || (Math.random() * 5).toFixed(1) }));
             setNotices(enrichedData);
         } catch (error) {
             console.error("Failed to fetch notices", error);
