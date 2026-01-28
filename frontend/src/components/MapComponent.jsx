@@ -79,7 +79,12 @@ const MapComponent = ({ notices, onMarkerClick }) => {
                     const infowindow = new window.kakao.maps.InfoWindow({ content: iwContent });
 
                     // Click Event - Safe
-                    window.kakao.maps.event.addListener(marker, 'click', function () {
+                    window.kakao.maps.event.addListener(marker, 'click', function (mouseEvent) {
+                        // Some Kakao events pass a mouseEvent, some don't depending on the API version. 
+                        // Just in case it's a DOM event bubbling up.
+                        if (mouseEvent && mouseEvent.preventDefault) {
+                            mouseEvent.preventDefault();
+                        }
                         if (onMarkerClick) onMarkerClick(notice);
                     });
 
