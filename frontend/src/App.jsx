@@ -5,16 +5,16 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       <header className="bg-gov-navy shadow-md">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center space-x-3 self-start sm:self-center">
+            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
               <span className="text-gov-navy font-bold text-lg">🏛️</span>
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight break-keep">
               서울시 임대주택 대시보드
             </h1>
           </div>
-          <div className="text-gray-300 text-sm">
+          <div className="text-gray-300 text-sm self-end sm:self-center">
             대한민국 정부 스타일
           </div>
         </div>
